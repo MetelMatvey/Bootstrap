@@ -69,12 +69,13 @@ public class Role implements GrantedAuthority {
         this.roleName = roleName;
     }
 
+    public String getName() {
+        return roleName.substring(5);
+    }
+
     @Override
     public String toString() {
-        return "Role{" +
-                "id=" + id +
-                ", roleName='" + roleName + '\'' +
-                '}';
+        return roleName;
     }
 
     @Override

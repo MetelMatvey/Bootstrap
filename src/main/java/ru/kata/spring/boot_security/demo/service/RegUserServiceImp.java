@@ -4,6 +4,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.kata.spring.boot_security.demo.models.User;
 
+import java.util.List;
+
 @Service
 public class RegUserServiceImp implements RegUserService {
     private final UserService userService;
@@ -16,7 +18,7 @@ public class RegUserServiceImp implements RegUserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void register(User user) {
+    public void register(User user, List<String> roleNameList) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(roleService.showRole("ROLE_USER"));
         userService.save(user);

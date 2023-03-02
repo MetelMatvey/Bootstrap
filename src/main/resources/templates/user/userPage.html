@@ -1,17 +1,58 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
     <title>Spring Security Example</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </head>
 <body>
-<h1>User, welcome spring boot security page!</h1>
+<nav class="navbar navbar-fixed-top navbar-dark bg-dark">
+    <div class="navbar-brand">
+        <a class="navbar-brand" href="#" th:text="${existUser.get.getEmail}"></a>
+        <span class="navbar-text text-white" th:text="'with roles: ' + ${existUser.get.strRole}"></span>
+    </div>
+    <a type="button" th:href="@{/logout}">Logout!</a>
+</nav>
+<div class="row">
+    <div class="container col-1 ">
+        <ul class="nav flex-column nav-pills">
+            <li class="nav-item"><a class="nav-link active" href="#userInfo" data-toggle="pill">User</a></li>
+        </ul>
+    </div>
 
-<p th:text="${'Id: ' + user.get().getId() }"/>
-<p th:text="${'Name: ' + user.get().getName()}"/>
-<p th:text="${'Age: ' + user.get().getAge()}"/>
-<p th:text="${'Email: ' + user.get().getEmail()}"/>
-<br>
+    <div class="container tab-pane bg-light min-vh-100 col-11 active" id="userInfo">
+        <h1>User information-page</h1>
+        <div class="card bg-light">
+            <div class="card-header"><strong>About user</strong></div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Age</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Role</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td th:text="${existUser.get.getId}"></td>
+                        <td th:text="${existUser.get.getName}"></td>
+                        <td th:text="${existUser.get.getAge}"></td>
+                        <td th:text="${existUser.get.getEmail}"></td>
+                        <td th:text="${existUser.get.strRole}"></td>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
-<a th:href="@{/logout}"><input type="button" value="Logout!"></a>
+
 </body>
 </html>

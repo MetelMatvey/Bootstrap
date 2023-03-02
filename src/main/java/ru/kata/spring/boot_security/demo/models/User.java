@@ -2,6 +2,7 @@ package ru.kata.spring.boot_security.demo.models;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -30,18 +31,13 @@ public class User implements UserDetails {
     @Column(name = "id")
     private long id;
     @Column(name = "name")
-    @NotEmpty(message = "Name should not be empty")
-    @Size(min = 1, max = 20, message = "name should be between 2 and 20 characters")
     private String name;
     @Column(name = "password")
-
-//    @Size(min = 1,max = 30,message = "password should be between 2 and 30 characters")
     private String password;
     @Column(name = "age")
     private int age;
     @Column
-    @Email(message = "Age should not be email")
-    @NotEmpty(message = "Email should not empty")
+
     private String email;
     @ManyToMany(cascade = CascadeType.REFRESH)
     @JoinTable(name = "users_roles",
@@ -63,6 +59,13 @@ public class User implements UserDetails {
             roleList = new ArrayList<>();
         }
         roleList.add(role);
+    }
+    public String strRole() {
+        String role = "";
+        for(Role rl : roleList) {
+            role = role + rl.toString();
+        }
+        return role.replaceAll("ROLE_", "");
     }
 
     public long getId() {

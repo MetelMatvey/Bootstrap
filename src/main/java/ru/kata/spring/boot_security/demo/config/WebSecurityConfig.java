@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import ru.kata.spring.boot_security.demo.service.CustomUserDetService;
 
 @Configuration
@@ -24,20 +25,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-                .authorizeRequests()
-                .antMatchers("/user/registration").anonymous()
-                .antMatchers("/admin/registration").anonymous()
-                .antMatchers("/table", "/table/user/{id}", "/table/new", "/table/user/{id}/edit").hasRole("ADMIN")
-                .antMatchers("/login").permitAll()
-                .anyRequest().hasAnyRole("USER", "ADMIN")
-                .and()
-                .formLogin().successHandler(successUserHandler)
+        http.formLogin()
+                .successHandler(successUserHandler)
+                .loginProcessingUrl("/login")
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .permitAll();
+        http.authorizeRequests()
+                .antMatchers("/login").anonymous()
+                .antMatchers("/").access("hasAnyRole('ROLE_USER','ROLE_ADMIN')").anyRequest().authenticated();
+        http.logout()
                 .permitAll()
-                .and()
-                .logout()
-                .permitAll().and().logout().logoutUrl("/logout").logoutSuccessUrl("/login");
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .logoutSuccessUrl("/login")
+                .and().csrf().disable();
     }
+
 
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 

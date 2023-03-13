@@ -14,9 +14,10 @@ public class UserDaoImp implements UserDao {
     @PersistenceContext
     private EntityManager entityManager;
 
+
     @Override
     public List<User> allUsers() {
-        return  entityManager.createQuery("SELECT u FROM User u join fetch u.roleList").getResultList();
+        return  entityManager.createQuery("SELECT u FROM User u JOIN FETCH u.roles").getResultList();
     }
 
     @Override
@@ -25,9 +26,9 @@ public class UserDaoImp implements UserDao {
     }
     @Override
     public Optional<User> getUserByName(String name) {
-        Query query= entityManager.createQuery("SELECT u FROM User u JOIN FETCH u.roleList WHERE u.name = :user");
+        Query query= entityManager.createQuery("SELECT u FROM User u JOIN FETCH u.roles WHERE u.username = :user");
         query.setParameter("user", name);
-        Optional<User> user = query.getResultStream().findAny();
+        Optional<User> user = query.getResultList().stream().findFirst();
         user.orElse(null);
         return user;
     }
@@ -37,12 +38,8 @@ public class UserDaoImp implements UserDao {
         entityManager.persist(user);
     }
     @Override
-    public void update(long id, User updateUser) {
-        User user = entityManager.find(User.class,id);
-        user.setName(updateUser.getName());
-        user.setAge(updateUser.getAge());
-        user.setEmail(updateUser.getEmail());
-
+    public void update(User updateUser) {
+        entityManager.merge(updateUser);
     }
 
     @Override

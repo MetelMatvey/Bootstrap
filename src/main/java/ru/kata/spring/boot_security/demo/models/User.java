@@ -1,12 +1,14 @@
 package ru.kata.spring.boot_security.demo.models;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -20,60 +22,77 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
+import java.util.Set;
 
 
 @Entity
-@Table
+@Table(name = "user")
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private long id;
-    @Column(name = "name")
-    private String name;
-    @Column(name = "password")
-    private String password;
-    @Column(name = "age")
-    private int age;
-    @Column
+    private long userId;
 
+    @Column(name = "name")
+    @NotEmpty(message = "Name should not be empty")
+    @Size(min = 1,max = 50,message = "name should be between 2 and 20 characters")
+    private String name;
+
+    @Column(name = "surname")
+    @NotEmpty(message = "Surname should not be empty")
+    private String surname;
+
+    @Column(name = "age")
+    private byte age;
+
+    @Column(name="email")
+    @Email(message = "Age should not be email")
+    @NotEmpty(message = "Email should not empty")
     private String email;
-    @ManyToMany(cascade = CascadeType.REFRESH)
+
+    @NotEmpty(message = "Username cannot be empty")
+    @Size(min = 2, max = 15, message = "Username should be between 2 and 15 latin characters")
+    @Column(name="username")
+    private String username;
+
+    @NotEmpty(message = "Password cannot be empty")
+    @Size(min = 4, message = "Password should be greater then 4 symbols")
+    private String password;
+
+    @NotEmpty(message = "The role cannot be omitted")
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private List<Role> roleList;
+    private Set<Role> roles;
 
     public User() {
     }
 
-    public User(String name, int age, String email) {
+    public User(String name, String surname, byte age, String email, String username, String password, Set<Role> roles) {
         this.name = name;
+        this.surname = surname;
         this.age = age;
         this.email = email;
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
     }
 
-    public void setRole(Role role) {
-        if (roleList == null) {
-            roleList = new ArrayList<>();
-        }
-        roleList.add(role);
-    }
-    public String strRole() {
-        String role = "";
-        for(Role rl : roleList) {
-            role = role + rl.toString();
-        }
-        return role.replaceAll("ROLE_", "");
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public long getId() {
-        return id;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getName() {
@@ -84,11 +103,19 @@ public class User implements UserDetails {
         this.name = name;
     }
 
-    public int getAge() {
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public byte getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(byte age) {
         this.age = age;
     }
 
@@ -100,50 +127,23 @@ public class User implements UserDetails {
         this.email = email;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public Set<Role> getRoles() {
+        return roles;
     }
 
-    public List<Role> getRoleList() {
-        return roleList;
-    }
-
-    public void setRoleList(List<Role> roleList) {
-        this.roleList = roleList;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", age=" + age +
-                ", email='" + email + '\'' +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        User user = (User) obj;
-        return name.equals(user.name) && age == user.age && email.equals(user.email);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int cos = 31;
-        return cos * 17 * Objects.hash(name, age, email);
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return getRoleList();
+        Set<Role> roles = getRoles();
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+
+        for (Role role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role.getRole()));
+        }
+        return authorities;
     }
 
     @Override
@@ -153,7 +153,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return name;
+        return username;
     }
 
     @Override

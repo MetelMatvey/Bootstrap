@@ -1,53 +1,61 @@
 package ru.kata.spring.boot_security.demo.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.dao.UserDao;
 import ru.kata.spring.boot_security.demo.models.User;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 public class UserServiceImp implements UserService {
 
     private final UserDao userDao;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImp(UserDao userDao) {
+    public UserServiceImp(UserDao userDao, PasswordEncoder passwordEncoder) {
         this.userDao = userDao;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public List<User> allUsers() {
+    public User passwordCoder(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return user;
+    }
+
+
+    @Override
+    public List<User> findAll() {
         return userDao.allUsers();
     }
 
     @Override
-    public User show(long id) {
+    public User getById(long id) {
         return userDao.show(id);
     }
 
     @Override
-    public Optional<User> getUserByName(String name) {
-        return userDao.getUserByName(name);
-    }
-
-    @Override
-    @Transactional
     public void save(User user) {
-        userDao.save(user);
+        userDao.save(passwordCoder(user));
     }
 
     @Override
-    @Transactional
-    public void update(long id, User updateUser) {
-        userDao.update(id, updateUser);
+    public void update(User user) {
+        userDao.update(user);
     }
 
     @Override
-    @Transactional
-    public void delete(long id) {
+    public void deleteById(long id) {
         userDao.delete(id);
     }
+
+    @Override
+    public User findByUsername(String username) {
+        return userDao.getUserByName(username).get();
+    }
+
+
 }
